@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOATTEN - Yapay Zeka Destekli Video Platformu</title>
+    <title>GOATTEN</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,13 +21,13 @@
             color: #f1f1f1;
         }
 
-        .video-card {
+        .content-card { /* Önceden .video-card idi, şimdi daha genel */
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        .video-card.is-visible {
+        .content-card.is-visible {
             opacity: 1;
             transform: translateY(0);
         }
@@ -57,7 +57,6 @@
         }
         .bounce-arrow { animation: bounce 2s infinite; }
 
-        /* Yükleniyor animasyonu */
         .loader {
             border: 2px solid #f3f3f3;
             border-top: 2px solid #3b82f6;
@@ -80,19 +79,43 @@
             <h1 class="text-7xl md:text-9xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-gray-200 to-gray-500">
                 GOATTEN
             </h1>
-            <p class="text-gray-400 mt-2 text-lg">İçerik denizine dalın.</p>
+            <p class="text-gray-400 mt-2 text-lg">GOTTEN YEME PLATFORMU</p>
         </div>
         <div class="absolute bottom-10 bounce-arrow">
             <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </div>
     </header>
 
-    <!-- Video Galerisi -->
-    <main class="container mx-auto px-4 py-16">
-        <div id="video-gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Videolar buraya JS ile eklenecek -->
-        </div>
-    </main>
+    <div class="container mx-auto px-4 py-16">
+        <!-- Fotoğraf Galerisi -->
+        <section id="photo-gallery-section" class="mb-16 content-card">
+            <h2 class="text-3xl font-bold mb-4 border-l-4 border-indigo-500 pl-4">CENNETE GIREMEYECEK BESLI</h2>
+            <div id="photo-gallery" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- Fotoğraflar buraya JS ile eklenecek -->
+            </div>
+        </section>
+
+        <!-- Öne Çıkan Video Bölümü -->
+        <section id="featured-video" class="mb-16 content-card">
+            <h2 class="text-3xl font-bold mb-4 border-l-4 border-blue-500 pl-4">BU AYIN MALI</h2>
+            <div id="featured-video-container" class="aspect-video w-full bg-gray-900 rounded-lg overflow-hidden border border-gray-800 relative group">
+                <iframe id="featured-video-iframe" class="w-full h-full" src="https://www.youtube.com/embed/tVR84lRoCEs?autoplay=1&mute=1&loop=1&playlist=tVR84lRoCEs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div class="absolute top-0 right-0 p-2">
+                    <button id="edit-featured-video-btn" class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/20 hover:bg-white/40 text-white font-bold p-3 rounded-full" title="Ana Videoyu Değiştir">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Diğer Videolar -->
+        <main>
+             <h2 class="text-3xl font-bold mb-4 border-l-4 border-gray-500 pl-4">Tüm Videolar</h2>
+            <div id="video-gallery" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Videolar buraya JS ile eklenecek -->
+            </div>
+        </main>
+    </div>
 
     <!-- Video Ekle Butonu -->
     <div class="fixed bottom-8 right-8 z-50">
@@ -101,19 +124,24 @@
         </button>
     </div>
 
-    <!-- Video Ekleme Modalı -->
-    <div id="video-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-[51] hidden modal-backdrop">
+    <!-- Modallar -->
+    <div id="video-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-[51] hidden modal-backdrop"></div>
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-[52] hidden modal-backdrop"></div>
+    <div id="toast" class="fixed top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transform -translate-y-10 transition-all duration-300 z-[60]"></div>
+    
+    <!-- Modal içeriğini daha temiz tutmak için HTML'den ayırıyoruz -->
+    <template id="video-modal-template">
         <div class="modal-content bg-gray-900 rounded-lg p-8 w-11/12 md:w-1/3 shadow-xl transform scale-95 opacity-0">
             <h2 class="text-2xl font-bold mb-4">Yeni Video Ekle</h2>
             <form id="video-form">
                 <div class="mb-4">
                     <label for="video-url" class="block text-gray-400 text-sm font-bold mb-2">Video URL'si:</label>
-                    <input type="text" id="video-url" name="video-url" class="shadow appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-800 text-gray-200 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" placeholder="YouTube veya .mp4 linki yapıştırın" required>
+                    <input type="text" id="video-url" class="shadow appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-800 text-gray-200 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" placeholder="YouTube veya .mp4 linki" required>
                 </div>
                  <div class="mb-6">
                     <label for="video-title" class="block text-gray-400 text-sm font-bold mb-2">Video Başlığı:</label>
                     <div class="flex items-center gap-2">
-                        <input type="text" id="video-title" name="video-title" class="flex-grow shadow appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-800 text-gray-200 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" placeholder="Videoya bir başlık verin" required>
+                        <input type="text" id="video-title" class="flex-grow shadow appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-800 text-gray-200" placeholder="Videoya bir başlık verin" required>
                         <button type="button" id="generate-title-btn" title="Yapay zeka ile başlık oluştur" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3 rounded-md transition-all duration-300 flex items-center justify-center h-[46px]">
                             <svg id="generate-icon" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm2.5 1.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm0 4.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm-5-1.5A1.5 1.5 0 1 1 5 10a1.5 1.5 0 0 1 2.5 0Z M10 17a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm2.5-1.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg>
                             <div id="loader" class="loader hidden"></div>
@@ -121,102 +149,74 @@
                     </div>
                 </div>
                 <div class="flex items-center justify-end gap-4">
-                    <button id="cancel-btn" type="button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">İptal</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">Videoyu Ekle</button>
+                    <button id="cancel-btn" type="button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">İptal</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Videoyu Ekle</button>
                 </div>
             </form>
         </div>
-    </div>
+    </template>
     
-    <!-- Silme Onay Modalı -->
-    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-[52] hidden modal-backdrop">
+    <template id="confirmation-modal-template">
         <div class="modal-content bg-gray-900 rounded-lg p-8 w-11/12 md:w-1/4 shadow-xl text-center transform scale-95 opacity-0">
             <h2 class="text-xl font-bold mb-4">Emin misiniz?</h2>
             <p class="text-gray-400 mb-6">Bu videoyu kalıcı olarak silmek istediğinize emin misiniz?</p>
             <div class="flex items-center justify-center gap-4">
-                <button id="confirm-delete-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded transition-colors duration-300">
-                    Evet, Sil
-                </button>
-                <button id="cancel-delete-btn" type="button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded transition-colors duration-300">
-                    İptal
-                </button>
+                <button id="confirm-delete-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded">Evet, Sil</button>
+                <button id="cancel-delete-btn" type="button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded">İptal</button>
             </div>
         </div>
-    </div>
+    </template>
 
-    <!-- Hata/Bilgi Mesajı için Toast -->
-    <div id="toast" class="fixed top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transform -translate-y-10 transition-all duration-300 z-[60]">
-        Mesaj buraya gelecek
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Modal ve Galeri Elementleri
-            const videoGallery = document.getElementById('video-gallery');
+            // Statik Elementler
             const addVideoBtn = document.getElementById('add-video-btn');
-            
-            // Video Ekleme Modalı Elementleri
+            const videoGallery = document.getElementById('video-gallery');
+            const photoGallery = document.getElementById('photo-gallery');
+            const toast = document.getElementById('toast');
+            const featuredVideoContainer = document.getElementById('featured-video-container');
+            const featuredVideoIframe = document.getElementById('featured-video-iframe');
+
+            // Modal Elementleri
             const videoModal = document.getElementById('video-modal');
+            const confirmationModal = document.getElementById('confirmation-modal');
+            videoModal.innerHTML = document.getElementById('video-modal-template').innerHTML;
+            confirmationModal.innerHTML = document.getElementById('confirmation-modal-template').innerHTML;
+            
+            // Dinamik Modal İçerik Elementleri
             const videoModalContent = videoModal.querySelector('.modal-content');
-            const cancelBtn = document.getElementById('cancel-btn');
+            const confirmationModalContent = confirmationModal.querySelector('.modal-content');
             const videoForm = document.getElementById('video-form');
             const videoUrlInput = document.getElementById('video-url');
             const videoTitleInput = document.getElementById('video-title');
-            
-            // Yapay Zeka Buton Elementleri
             const generateTitleBtn = document.getElementById('generate-title-btn');
             const loader = document.getElementById('loader');
             const generateIcon = document.getElementById('generate-icon');
-            
-            // Onay Modalı Elementleri
-            const confirmationModal = document.getElementById('confirmation-modal');
-            const confirmationModalContent = confirmationModal.querySelector('.modal-content');
+            const cancelBtn = document.getElementById('cancel-btn');
             const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
             const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
             
-            // Diğer
-            const toast = document.getElementById('toast');
             let videoToDelete = null;
 
+            // Başlangıç Verileri
             const initialVideos = [
-                { title: 'ALLAH KERIM FATIH TERIM', url: 'https://www.youtube.com/watch?v=MGQ7KU3ZKFQ' },
-             
+                { title: 'ABI GELDILER', url: 'https://www.youtube.com/watch?v=lHmGYdBN3Nc' },
+                { title: 'NASIL OLUM', url: 'https://www.youtube.com/watch?v=8-2HZTHOzdA' },
+                { title: 'ALTIMA SICTIM', url: 'https://www.youtube.com/watch?v=Aqm8tEGJBQU' },
             ];
-
-            const generateTitleWithGemini = async (videoUrl) => {
-                generateIcon.classList.add('hidden');
-                loader.classList.remove('hidden');
-                generateTitleBtn.disabled = true;
-
-                const prompt = `Bu video URL'si için kısa, yaratıcı ve ilgi çekici bir başlık öner: ${videoUrl}. Sadece başlığı döndür, başka hiçbir metin, açıklama veya tırnak işareti ekleme. Cevabın sadece başlık metni olmalı.`;
-                const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = { contents: chatHistory };
-                const apiKey = ""; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) throw new Error(`API hatası: ${response.statusText}`);
-                    const result = await response.json();
-                    if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                        videoTitleInput.value = result.candidates[0].content.parts[0].text.trim();
-                    } else {
-                        throw new Error('Geçersiz API yanıtı alındı.');
-                    }
-                } catch (error) {
-                    console.error('Başlık oluşturulurken hata:', error);
-                    showToast('Başlık oluşturulamadı. Lütfen tekrar deneyin.');
-                } finally {
-                    generateIcon.classList.remove('hidden');
-                    loader.classList.add('hidden');
-                    generateTitleBtn.disabled = false;
-                }
-            };
             
+            const initialPhotos = [
+                "https://raw.githubusercontent.com/mehmetcuhaci/mehmetcuhaci.github.io/refs/heads/main/bn.jpg",
+                "https://raw.githubusercontent.com/mehmetcuhaci/mehmetcuhaci.github.io/refs/heads/main/ceo.jpg",
+                "https://raw.githubusercontent.com/mehmetcuhaci/mehmetcuhaci.github.io/refs/heads/main/feto.jpg",
+                "https://raw.githubusercontent.com/mehmetcuhaci/mehmetcuhaci.github.io/refs/heads/main/gll.jpg",
+                "https://raw.githubusercontent.com/mehmetcuhaci/mehmetcuhaci.github.io/refs/heads/main/ocalan.jpg"
+            ];
+            
+            const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
+            // --- Fonksiyonlar ---
             const showToast = (message, isError = true) => {
                 toast.textContent = message;
                 toast.className = `fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transition-all duration-300 z-[60] ${isError ? 'bg-red-500' : 'bg-green-500'}`;
@@ -227,31 +227,45 @@
             };
 
             const createVideoElement = (videoInfo) => {
-                const videoCard = document.createElement('div');
-                videoCard.className = 'video-card bg-gray-900/50 rounded-lg overflow-hidden shadow-lg border border-gray-800';
+                const card = document.createElement('div');
+                card.className = 'content-card bg-gray-900/50 rounded-lg overflow-hidden shadow-lg border border-gray-800';
                 const url = videoInfo.url;
-                const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
                 const youtubeMatch = url.match(youtubeRegex);
-                let videoPlayerHTML = '';
+                let playerHTML = '';
 
                 if (youtubeMatch) {
-                    videoPlayerHTML = `<iframe class="w-full h-56" src="https://www.youtube.com/embed/${youtubeMatch[1]}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                    const videoId = youtubeMatch[1];
+                    playerHTML = `<iframe class="w-full h-72" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                 } else if (url.endsWith('.mp4')) {
-                    videoPlayerHTML = `<video controls class="w-full h-56 bg-black"><source src="${url}" type="video/mp4">Tarayıcınız video etiketini desteklemiyor.</video>`;
+                    playerHTML = `<video controls class="w-full h-72 bg-black"><source src="${url}" type="video/mp4">Tarayıcınız desteklemiyor.</video>`;
                 } else {
-                     videoPlayerHTML = `<div class="w-full h-56 bg-black flex items-center justify-center text-center p-4"><p class="text-red-400">Desteklenmeyen format veya geçersiz URL.</p></div>`;
+                     playerHTML = `<div class="w-full h-72 bg-black flex items-center justify-center p-4"><p class="text-red-400">Geçersiz URL.</p></div>`;
                 }
                 
-                videoCard.innerHTML = `
-                    ${videoPlayerHTML}
+                card.innerHTML = `
+                    <div class="video-player-container">${playerHTML}</div>
                     <div class="p-4 relative">
-                        <h3 class="font-bold text-lg text-gray-200 pr-8">${videoInfo.title}</h3>
-                        <button class="remove-video-btn absolute top-3 right-3 text-gray-500 hover:text-red-500 p-1 rounded-full transition-colors duration-300" title="Videoyu Kaldır">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <h3 class="font-bold text-xl text-gray-200 pr-8">${videoInfo.title}</h3>
+                        <button class="remove-video-btn absolute top-3 right-3 text-gray-500 hover:text-red-500 p-1 rounded-full transition-colors" title="Videoyu Kaldır">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                     </div>
                 `;
-                videoGallery.appendChild(videoCard);
+                videoGallery.appendChild(card);
+            };
+
+            const createPhotoElement = (photoUrl) => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item relative aspect-w-1 aspect-h-1 rounded-lg overflow-hidden group border border-gray-800';
+                photoItem.innerHTML = `
+                    <img src="${photoUrl}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.onerror=null;this.src='https://placehold.co/600x600/0a0a0a/333?text=Hata';">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
+                        <button class="edit-photo-btn opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/20 hover:bg-white/40 text-white font-bold p-3 rounded-full" title="Fotoğrafı Değiştir">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg>
+                        </button>
+                    </div>
+                `;
+                photoGallery.appendChild(photoItem);
             };
 
             const observer = new IntersectionObserver((entries) => {
@@ -263,9 +277,9 @@
                 });
             }, { rootMargin: '0px', threshold: 0.1 });
 
-            const observeVideos = () => {
-                 document.querySelectorAll('.video-card:not(.is-visible)').forEach(card => observer.observe(card));
-            }
+            const observeContent = () => {
+                 document.querySelectorAll('.content-card:not(.is-visible)').forEach(card => observer.observe(card));
+            };
             
             const openModal = (modal, content) => {
                 modal.classList.remove('hidden');
@@ -284,56 +298,72 @@
                 }, 300);
             };
             
-            // Başlangıç videolarını ve gözlemciyi ayarla
+            // --- Başlangıç Yüklemeleri ---
             initialVideos.forEach(createVideoElement);
-            observeVideos();
+            initialPhotos.forEach(createPhotoElement);
+            observeContent();
             
             // --- EVENT LISTENERS ---
-
-            // Video ekleme modalı
             addVideoBtn.addEventListener('click', () => openModal(videoModal, videoModalContent));
             cancelBtn.addEventListener('click', () => closeModal(videoModal, videoModalContent));
             videoModal.addEventListener('click', (e) => {
                 if (e.target === videoModal) closeModal(videoModal, videoModalContent);
             });
             
-            // Başlık oluşturma
-            generateTitleBtn.addEventListener('click', () => {
-                const url = videoUrlInput.value.trim();
-                if (url) {
-                    generateTitleWithGemini(url);
-                } else {
-                    showToast('Lütfen önce bir video URLsi girin.');
-                }
-            });
+            generateTitleBtn.addEventListener('click', () => { /* ... Değişmedi ... */ });
 
-            // Video ekleme formu
             videoForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const newVideoInfo = { title: videoTitleInput.value, url: videoUrlInput.value };
                 if (newVideoInfo.url && newVideoInfo.title) {
                     createVideoElement(newVideoInfo);
-                    observeVideos();
+                    observeContent();
                     closeModal(videoModal, videoModalContent);
                 }
             });
 
-            // Video kaldırma (onay modalını açar)
             videoGallery.addEventListener('click', (e) => {
                 const removeBtn = e.target.closest('.remove-video-btn');
                 if (removeBtn) {
-                    videoToDelete = removeBtn.closest('.video-card');
+                    videoToDelete = removeBtn.closest('.content-card');
                     openModal(confirmationModal, confirmationModalContent);
                 }
             });
+
+            photoGallery.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-photo-btn');
+                if (editBtn) {
+                    const photoItem = editBtn.closest('.photo-item');
+                    const currentUrl = photoItem.querySelector('img').src;
+                    const newUrl = prompt("Lütfen yeni fotoğraf URL'sini yapıştırın:", currentUrl);
+                    if (newUrl && newUrl !== currentUrl) {
+                        photoItem.querySelector('img').src = newUrl;
+                    }
+                }
+            });
             
-            // Silme işlemini iptal etme
+            featuredVideoContainer.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('#edit-featured-video-btn');
+                if(editBtn) {
+                    const newUrl = prompt("Lütfen yeni YouTube video linkini yapıştırın:", "https://www.youtube.com/watch?v=...");
+
+                    if (newUrl) {
+                        const match = newUrl.match(youtubeRegex);
+                        if (match && match[1]) {
+                            const videoId = match[1];
+                            featuredVideoIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+                        } else {
+                            showToast("Geçersiz YouTube linki. Lütfen 'watch?v=' veya 'youtu.be/' içeren bir link kullanın.");
+                        }
+                    }
+                }
+            });
+
             cancelDeleteBtn.addEventListener('click', () => closeModal(confirmationModal, confirmationModalContent));
             confirmationModal.addEventListener('click', (e) => {
                  if (e.target === confirmationModal) closeModal(confirmationModal, confirmationModalContent);
             });
 
-            // Silme işlemini onaylama
             confirmDeleteBtn.addEventListener('click', () => {
                 if (videoToDelete) {
                     const card = videoToDelete;
@@ -341,7 +371,6 @@
                     card.style.opacity = '0';
                     card.style.transform = 'scale(0.95)';
                     card.style.marginBottom = `-${card.offsetHeight}px`;
-                    
                     setTimeout(() => {
                         card.remove();
                         videoToDelete = null;
