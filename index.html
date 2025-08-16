@@ -15,6 +15,9 @@
     
     <style>
         /* Custom Stiller */
+        html {
+            scroll-behavior: smooth;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0a0a0a;
@@ -70,8 +73,30 @@
             100% { transform: rotate(360deg); }
         }
     </style>
+
 </head>
-<body class="w-full">
+<body class="w-full pt-16">
+
+    <nav class="bg-black/60 backdrop-blur fixed top-0 left-0 w-full z-40">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="text-xl font-bold">GOATTEN</div>
+            <button id="nav-toggle" class="sm:hidden text-gray-100 focus:outline-none" aria-label="Menüyü Aç/Kapat">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <ul class="hidden sm:flex space-x-6" id="desktop-menu">
+                <li><a href="#photo-gallery-section" class="hover:text-blue-400">Galeri</a></li>
+                <li><a href="#featured-video" class="hover:text-blue-400">Öne Çıkan</a></li>
+                <li><a href="#video-gallery" class="hover:text-blue-400">Videolar</a></li>
+            </ul>
+        </div>
+        <ul id="mobile-menu" class="sm:hidden hidden flex-col px-4 pb-4 space-y-2">
+            <li><a href="#photo-gallery-section" class="block py-2 border-b border-gray-700">Galeri</a></li>
+            <li><a href="#featured-video" class="block py-2 border-b border-gray-700">Öne Çıkan</a></li>
+            <li><a href="#video-gallery" class="block py-2">Videolar</a></li>
+        </ul>
+    </nav>
 
     <!-- Hero Bölümü -->
     <header id="hero" class="h-screen w-full flex flex-col justify-center items-center relative select-none">
@@ -81,9 +106,9 @@
             </h1>
             <p class="text-gray-400 mt-2 text-lg">GOTTEN YEME PLATFORMU</p>
         </div>
-        <div class="absolute bottom-10 bounce-arrow">
+        <a href="#photo-gallery-section" class="absolute bottom-10 bounce-arrow" aria-label="Galeriyi Gör">
             <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </div>
+        </a>
     </header>
 
     <div class="container mx-auto px-4 py-16">
@@ -177,6 +202,8 @@
             const toast = document.getElementById('toast');
             const featuredVideoContainer = document.getElementById('featured-video-container');
             const featuredVideoIframe = document.getElementById('featured-video-iframe');
+            const navToggle = document.getElementById('nav-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
 
             // Modal Elementleri
             const videoModal = document.getElementById('video-modal');
@@ -232,15 +259,17 @@
                 card.className = 'content-card bg-gray-900/50 rounded-lg overflow-hidden shadow-lg border border-gray-800';
                 const url = videoInfo.url;
                 const youtubeMatch = url.match(youtubeRegex);
+                // .mp4 links may include query parameters or uppercase extensions.
+                const cleanUrl = url.split('?')[0].toLowerCase();
                 let playerHTML = '';
 
                 if (youtubeMatch) {
                     const videoId = youtubeMatch[1];
-                    playerHTML = `<iframe class="w-full h-72" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                } else if (url.endsWith('.mp4')) {
-                    playerHTML = `<video controls class="w-full h-72 bg-black"><source src="${url}" type="video/mp4">Tarayıcınız desteklemiyor.</video>`;
+                    playerHTML = `<iframe loading="lazy" class="w-full h-72" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                } else if (cleanUrl.endsWith('.mp4')) {
+                    playerHTML = `<video controls preload="none" class="w-full h-72 bg-black"><source src="${url}" type="video/mp4">Tarayıcınız desteklemiyor.</video>`;
                 } else {
-                     playerHTML = `<div class="w-full h-72 bg-black flex items-center justify-center p-4"><p class="text-red-400">Geçersiz URL.</p></div>`;
+                    playerHTML = `<div class="w-full h-72 bg-black flex items-center justify-center p-4"><p class="text-red-400">Geçersiz URL.</p></div>`;
                 }
                 
                 card.innerHTML = `
@@ -257,9 +286,10 @@
 
             const createPhotoElement = (photoUrl) => {
                 const photoItem = document.createElement('div');
-                photoItem.className = 'photo-item relative aspect-w-1 aspect-h-1 rounded-lg overflow-hidden group border border-gray-800';
+                // Tailwind's old aspect-w-* classes require a plugin; use built-in aspect-square instead.
+                photoItem.className = 'photo-item relative aspect-square rounded-lg overflow-hidden group border border-gray-800';
                 photoItem.innerHTML = `
-                    <img src="${photoUrl}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.onerror=null;this.src='https://placehold.co/600x600/0a0a0a/333?text=Hata';">
+                    <img src="${photoUrl}" loading="lazy" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.onerror=null;this.src='https://placehold.co/600x600/0a0a0a/333?text=Hata';">
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
                         <button class="edit-photo-btn opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/20 hover:bg-white/40 text-white font-bold p-3 rounded-full" title="Fotoğrafı Değiştir">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg>
@@ -303,8 +333,10 @@
             initialVideos.forEach(createVideoElement);
             initialPhotos.forEach(createPhotoElement);
             observeContent();
-            
+
             // --- EVENT LISTENERS ---
+            navToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => mobileMenu.classList.add('hidden')));
             addVideoBtn.addEventListener('click', () => openModal(videoModal, videoModalContent));
             cancelBtn.addEventListener('click', () => closeModal(videoModal, videoModalContent));
             videoModal.addEventListener('click', (e) => {
